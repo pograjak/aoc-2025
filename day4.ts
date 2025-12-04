@@ -21,30 +21,49 @@ function addNeighborRoll(
   }
 }
 
-const input = await loadInputs("day4");
+const input = await loadInputs("day4", true);
 
-const rows = input.split("\n");
-const rowsCount = rows.length;
-const colsCount = rows[0].length;
+const map = input.split("\n").map((line) => line.split(""));
+const rowsCount = map.length;
+const colsCount = map[0].length;
 
-const neighborRolls: NeighborRolls = new Map<string, number>();
+function remove(): number {
+  const neighborRolls: NeighborRolls = new Map<string, number>();
 
-for (let y = 0; y < rowsCount; y++) {
-  for (let x = 0; x < colsCount; x++) {
-    if (rows[y][x] === "@") {
-      neighborRolls.set(`${x}-${y}`, 0);
+  for (let y = 0; y < rowsCount; y++) {
+    for (let x = 0; x < colsCount; x++) {
+      if (map[y][x] === "@") {
+        neighborRolls.set(`${x}-${y}`, 0);
+      }
     }
   }
-}
 
-for (let y = 0; y < rowsCount; y++) {
-  for (let x = 0; x < colsCount; x++) {
-    if (rows[y][x] === "@") {
-      addNeighborRoll(neighborRolls, x, y, colsCount, rowsCount);
+  for (let y = 0; y < rowsCount; y++) {
+    for (let x = 0; x < colsCount; x++) {
+      if (map[y][x] === "@") {
+        addNeighborRoll(neighborRolls, x, y, colsCount, rowsCount);
+      }
     }
   }
+
+  let removed = 0;
+  for (const [position, rolls] of neighborRolls) {
+    if (rolls < 4) {
+      removed++;
+      const [xStr, yStr] = position.split("-");
+      const x = parseInt(xStr, 10);
+      const y = parseInt(yStr, 10);
+      map[y][x] = ".";
+    }
+  }
+  return removed;
 }
 
-console.log(
-  Array.from(neighborRolls.values()).filter((count) => count < 4).length
-);
+let total = 0;
+while (true) {
+  const removed = remove();
+  if (removed === 0) break;
+  total += removed;
+}
+
+console.log(total);
