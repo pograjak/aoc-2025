@@ -4,20 +4,23 @@ const input = await loadInputs("day5");
 
 const fresh: number[][] = [];
 
-let count = 0;
-
 for (const line of input.split("\n")) {
-  if (line.includes("-")) fresh.push(line.split("-").map(Number));
-  else {
-    const num = parseInt(line, 10);
-    if (Number.isNaN(num)) continue;
-    for (const [start, end] of fresh) {
-      if (num >= start && num <= end) {
-        count++;
-        break;
-      }
-    }
-  }
+  if (line.includes("-")) {
+    fresh.push(line.split("-").map(Number));
+  } else break;
 }
 
-console.log(count);
+fresh.sort((a, b) => a[0] - b[0]);
+
+const merged: number[][] = [fresh[0]];
+
+for (let i = 1; i < fresh.length; i++) {
+  const [_, lastMax] = merged[merged.length - 1];
+  const [currentMin, currentMax] = fresh[i];
+  if (currentMin <= lastMax + 1) {
+    merged[merged.length - 1][1] = Math.max(lastMax, currentMax);
+  } else {
+    merged.push([currentMin, currentMax]);
+  }
+}
+console.log(merged.reduce((acc, curr) => acc + (curr[1] - curr[0] + 1), 0));
